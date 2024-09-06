@@ -21,9 +21,9 @@
                         @foreach ($categories as $category)
                             <div class="card-2 bg-9 wow animate__animated animate__fadeInUp" data-wow-delay=".1s">
                                 <figure class="img-hover-scale overflow-hidden">
-                                    <a href="shop-grid-right.html"><img src="assets/imgs/shop/cat-13.png" alt="" /></a>
+                                    <a href="{{ route('front.category.detail',$category['slug']) }}"><img src="assets/imgs/shop/cat-13.png" alt="" /></a>
                                 </figure>
-                                <h6><a href="shop-grid-right.html">{{ $category['name'] }}</a></h6>
+                                <h6><a href="{{ route('front.category.detail',$category['slug']) }}">{{ $category['name'] }}</a></h6>
                                 <span>2</span>
                             </div>
                         @endforeach
@@ -82,8 +82,8 @@
                                         <h2><a href="{{ route('front.product.detail',$product['slug']) }}"> {{ $product['name'] }} </a></h2>
                                         <div class="product-card-bottom">
                                             <div class="product-price">
-                                                <span> {{ $product['price']['sale_price'] }} </span>
-                                                <span class="old-price"> {{ $product['price']['discount_price'] }} </span>
+                                                <span> {{ $product['price']['sale_price'] ?? '-' }} </span>
+                                                <span class="old-price"> {{ $product['price']['discount_price'] ?? '-' }} </span>
                                             </div>
                                             <div class="add-cart">
                                                 <a class="add" href="shop-cart.html"><i class="fi-rs-shopping-cart mr-5"></i></a>

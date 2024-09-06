@@ -5,7 +5,8 @@
             <div class="container">
                 <div class="breadcrumb">
                     <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Anasayfa</a>
-                    <span></span> <a href="shop-grid-right.html">{{ $product['category'] }}</a> <span></span> {{ $product['name'] }} 
+                    <span></span> <a href="{{ route('front.category.detail',$product['category_slug']) }}">{{ $product['category'] }}</a>
+                    <span></span> {{ $product['name'] }} 
                 </div>
             </div>
         </div>
@@ -31,6 +32,15 @@
                                     </div>
                                 </div>
                             </div>
+
+                            @if($errors->any())
+                                @foreach ($errors->all() as $e)
+                                    <div class="alert alert-danger">
+                                        {{ $e }}
+                                    </div>
+                                @endforeach
+                            @endif
+
                             <div class="col-md-6 col-sm-12 col-xs-12">
                                 <div class="detail-info pr-30 pl-30">
                                     <span class="stock-status out-stock"> İndirim </span>
@@ -38,28 +48,21 @@
                                     
                                     <div class="clearfix product-price-cover">
                                         <div class="product-price primary-color float-left">
-                                            <span class="current-price text-brand">{{ $product['price'] }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="short-desc mb-30">
-                                        <p class="font-lg"> {{ $product['description'] }} </p>
-                                    </div>
-
-                                    <div class="detail-extralink mb-50">
-                                        <div class="detail-qty radius border">
-                                            <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                                            <input type="text" name="quantity" class="qty-val" value="1"
-                                                min="1">
-                                            <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                                        </div>
-                                        <div class="product-extra-link2">
-                                            <button type="submit" class="button button-add-to-cart"><i
-                                                    class="fi-rs-shopping-cart"></i>Sepete Ekle</button>
+                                            <span class="current-price text-brand">{{ $product['price']['sale_price'] ?? '-' }}</span>
                                         </div>
                                     </div>
 
 
-
+                                        <div class="detail-extralink mb-50">
+                                            <input type="hidden" name="product_id" value="" id="">
+                                            <div class="product-extra-link2">
+                                                <button id="add-to-cart" data-product-id="{{ $product['product_id'] }}" data-quantity="1" class="button button-add-to-cart"><i
+                                                        class="fi-rs-shopping-cart"></i>Sepete Ekle</button>
+                                            </div>
+                                        </div>
+    
+    
+    
                                     <div class="font-xs">
                                         <ul class="mr-50 float-start">
                                             <li class="mb-5">Type: <span class="text-brand"> {{ $product['warrant'] }} </span></li>
@@ -68,8 +71,17 @@
                                             <li class="mb-5">Stok: <a href="#">{{ $product['stock'] }} - {{ $product['unit']['name'] }}</a></li>
                                         </ul>
                                     </div>
+                                    
                                 </div>
                                 <!-- Detail Info -->
+                            </div>
+
+                            <div class="row">
+                                <div class="short-desc mb-30">
+                                    <p class="font-lg"> {!! $product['description'] !!} </p>
+                                </div>
+
+                                
                             </div>
                         </div>
 
@@ -101,8 +113,8 @@
                                             <div class="product-content-wrap">
                                                 <h2><a href="{{ route('front.product.detail',$item['slug']) }}" tabindex="0"> {{ $item['name'] }} </a></h2>
                                                 <div class="product-price">
-                                                    <span> {{ $item['price']['sale_price'] }} </span>
-                                                    <span class="old-price"> {{ $item['price']['discount_price'] }} </span>
+                                                    <span> {{ $item['price']['sale_price'] ?? '-' }} </span>
+                                                    <span class="old-price"> {{ $item['price']['discount_price'] ?? '-' }} </span>
                                                 </div>
                                             </div>
                                         </div>
@@ -118,4 +130,52 @@
             </div>
         </div>
     </main>
+@endsection
+@section('script')
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.getElementById('add-to-cart').addEventListener('click', function() {
+        var productId = this.dataset.productId;
+        var quantity = this.dataset.quantity;
+        fetch("{{ route('cart.add') }}", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF koruması için
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: quantity
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+            console.log(data);
+                updateBasket(data?.basket)
+                document.getElementById('cart-count').textContent = data.count;
+
+                Swal.fire({
+                    position: "top-end",
+                    icon: "success",
+                    title: "Sepete eklendi",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            } else {
+                Swal.fire({
+                    position: "top-end",
+                    icon: "error",
+                    title: "Sepete eklenirken hata!",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Hata:', error);
+            alert('Bir hata oluştu!'. error);
+        });
+    });
+</script>
 @endsection

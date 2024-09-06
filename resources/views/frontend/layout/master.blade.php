@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Nest - Multipurpose eCommerce HTML Template</title>
+    <title>Deha E-commerce Project</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -24,6 +24,14 @@
     @yield('content')
 
     @include('frontend.partials.footer')
+    
+    @include('sweetalert::alert')
+
+
+    @yield('script')
+
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @stack('scripts')
 
     
     <!-- Vendor JS-->
